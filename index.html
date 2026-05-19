@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>蔡文雅 · 视觉算法工程师（实习）｜ 浅色科技动态档案</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #eef2ff;  /* 浅色基底 */
+            color: #1e293b;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 浅色科技动态背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 40%, rgba(37, 99, 235, 0.08), transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(6, 182, 212, 0.06), transparent 50%);
+            pointer-events: none;
+            z-index: -2;
+            animation: bgPulseLight 8s ease-in-out infinite alternate;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(37, 99, 235, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(37, 99, 235, 0.08) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: -1;
+            animation: gridMoveLight 20s linear infinite;
+        }
+
+        @keyframes bgPulseLight {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        @keyframes gridMoveLight {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(40px, 40px); }
+        }
+
+        /* 浮动粒子 (浅色版) */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .bg-particles span {
+            position: absolute;
+            background: rgba(37, 99, 235, 0.25);
+            border-radius: 50%;
+            box-shadow: 0 0 8px #93c5fd;
+            animation: particleFloatLight 12s infinite alternate;
+        }
+
+        @keyframes particleFloatLight {
+            0% { transform: translateY(0) scale(1); opacity: 0.2; }
+            100% { transform: translateY(-60px) scale(1.2); opacity: 0.6; }
+        }
+
+        /* 浮动蝴蝶容器 */
+        .butterflies {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .butterfly {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            will-change: transform;
+            animation: floatButterfly 18s infinite ease-in-out;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+        }
+        .butterfly svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            animation: flap 0.4s infinite alternate ease-in-out;
+            transform-origin: center;
+        }
+        @keyframes flap {
+            0% { transform: scaleX(1); }
+            100% { transform: scaleX(0.7); }
+        }
+        @keyframes floatButterfly {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(30px, -20px) rotate(5deg); }
+            50% { transform: translate(-20px, -40px) rotate(-3deg); }
+            75% { transform: translate(40px, 10px) rotate(4deg); }
+            100% { transform: translate(-10px, -15px) rotate(-2deg); }
+        }
+        /* 不同蝴蝶大小和位置不同 */
+        .butterfly-1 { width: 45px; height: 45px; top: 15%; left: 5%; animation-duration: 22s; animation-delay: 0s; }
+        .butterfly-2 { width: 35px; height: 35px; top: 60%; left: 80%; animation-duration: 19s; animation-delay: 2s; }
+        .butterfly-3 { width: 50px; height: 50px; top: 30%; left: 70%; animation-duration: 25s; animation-delay: 5s; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            z-index: 100;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.2);
+        }
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .nav-container a {
+            text-decoration: none;
+            font-weight: 500;
+            color: #1e293b;
+            transition: 0.2s;
+            font-size: 0.95rem;
+        }
+        .nav-container a:hover { color: #2563eb; text-shadow: 0 0 2px #bfdbfe; }
+
+        section {
+            padding: 80px 0;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.15);
+        }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 2rem;
+            display: inline-block;
+            background: linear-gradient(135deg, #1e293b, #2563eb);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 60%;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #94a3f8);
+            border-radius: 4px;
+            margin-top: 6px;
+        }
+
+        /* 个人信息卡片（浅色半透明） */
+        .profile-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.08), 0 0 0 1px rgba(37, 99, 235, 0.2);
+            padding: 2.2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .profile-left {
+            flex: 2;
+            min-width: 250px;
+        }
+        .profile-name {
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(145deg, #0f172a, #2563eb);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .profile-tag {
+            display: inline-block;
+            background: rgba(37, 99, 235, 0.15);
+            padding: 0.2rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 500;
+            color: #1e40af;
+            margin: 0.8rem 0 0.5rem 0;
+        }
+        .education-badge {
+            background: rgba(0,0,0,0.05);
+            border-radius: 1rem;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+            display: inline-block;
+            color: #1e293b;
+        }
+        .personal-motto {
+            background: rgba(0, 0, 0, 0.03);
+            padding: 1rem 1.2rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            border-left: 4px solid #3b82f6;
+            color: #1e293b;
+        }
+        .contact-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1.2rem;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(30, 41, 59, 0.08);
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            text-decoration: none;
+            color: #1e293b;
+            transition: 0.2s;
+        }
+        .contact-item i { color: #2563eb; width: 18px; }
+        .contact-item:hover { background: #2563eb; color: white; }
+        .contact-item:hover i { color: white; }
+
+        /* 动态头像（浅色版边框光效） */
+        .avatar-container {
+            position: relative;
+            width: 170px;
+            height: 170px;
+            margin: 0 auto;
+            border-radius: 50%;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.3), 0 10px 25px -5px rgba(0,0,0,0.1);
+            animation: float 3s ease-in-out infinite;
+        }
+        .avatar-container::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed, #06b6d4, #3b82f6);
+            border-radius: 50%;
+            z-index: -1;
+            animation: spin 4s linear infinite;
+        }
+        .avatar-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5), transparent 70%);
+            pointer-events: none;
+        }
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        .avatar-container:hover .avatar-img { transform: scale(1.02); }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .avatar-container .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(37, 99, 235, 0.15) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            border-radius: 50%;
+            animation: scanMove 4s linear infinite;
+        }
+        @keyframes scanMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100%; }
+        }
+        .avatar-tip {
+            font-size: 0.7rem;
+            color: #475569;
+            margin-top: 12px;
+        }
+
+        /* 卡片通用（浅色半透） */
+        .skill-card, .project-card, .social-card, .award-group {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        .skill-card:hover, .project-card:hover, .social-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+        }
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px,1fr));
+            gap: 1.5rem;
+        }
+        .skill-card {
+            border-radius: 1.5rem;
+            padding: 1rem 1.4rem;
+            transition: 0.2s ease;
+        }
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+        .progress-bar {
+            background: #e2e8f0;
+            border-radius: 40px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #2563eb, #60a5fa);
+            width: 0%;
+            height: 100%;
+            border-radius: 40px;
+        }
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px,1fr));
+            gap: 1.8rem;
+        }
+        .project-card {
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            transition: all 0.25s;
+        }
+        .project-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.3rem; color: #0f172a; }
+        .project-date { font-size: 0.75rem; color: #475569; display: flex; gap: 6px; align-items: center; margin-bottom: 0.6rem;}
+        .tech-stack { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+        .tech-tag { background: rgba(37, 99, 235, 0.15); padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 500; color:#1e40af;}
+
+        /* 社会实践 */
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        .social-card {
+            border-radius: 1.5rem;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+        .social-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #3b82f6;
+        }
+        .social-content { padding: 1.2rem 1.5rem 1.5rem; }
+        .social-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: #0f172a; }
+        .social-date { font-size: 0.75rem; color: #475569; margin-bottom: 0.75rem; display: flex; gap: 0.5rem; }
+        .social-desc { color: #334155; font-size: 0.9rem; line-height: 1.5; }
+
+        /* 奖项 */
+        .awards-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+        .award-group {
+            border-radius: 1.8rem;
+            padding: 1.2rem 1.5rem 1.8rem;
+        }
+        .group-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            border-bottom: 2px dashed #cbd5e1;
+            padding-bottom: 0.5rem;
+            color: #0f172a;
+        }
+        .award-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+        .award-chip {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 60px;
+            padding: 0.5rem 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid #cbd5e1;
+            color: #1e293b;
+            flex-wrap: wrap;
+        }
+        .cert-btn {
+            background: rgba(37, 99, 235, 0.15);
+            border: none;
+            color: #2563eb;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-left: 6px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .cert-btn:hover { background: #2563eb; color: white; }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 12px;
+            border: 2px solid #3b82f6;
+        }
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #e2e8f0;
+            color: #1e293b;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: 0.2s;
+            box-shadow: 0 0 10px rgba(59,130,246,0.3);
+            z-index: 99;
+        }
+        .back-to-top.show { opacity: 1; }
+        .back-to-top:hover { background: #2563eb; color: white; }
+        footer {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            text-align: center;
+            padding: 2rem;
+            color: #475569;
+            font-size: 0.8rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        @media (max-width: 700px) {
+            section { padding: 60px 0; }
+            .profile-card { flex-direction: column; text-align: center; }
+            .contact-info { justify-content: center; }
+            .section-title:after { margin-left: auto; margin-right: auto; width: 40%;}
+            .section-title { display: block; text-align: center; }
+            .avatar-container { width: 140px; height: 140px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 浮动蝴蝶 -->
+<div class="butterflies">
+    <div class="butterfly butterfly-1">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50,50 C30,20 10,30 20,50 C30,70 40,60 50,50 Z" fill="#f97316" stroke="#ea580c" stroke-width="1.5"/>
+            <path d="M50,50 C70,20 90,30 80,50 C70,70 60,60 50,50 Z" fill="#fb923c" stroke="#ea580c" stroke-width="1.5"/>
+            <path d="M50,50 L50,70" stroke="#b45309" stroke-width="2"/>
+            <circle cx="50" cy="50" r="3" fill="#1e293b"/>
+        </svg>
+    </div>
+    <div class="butterfly butterfly-2">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50,50 C25,15 5,25 15,50 C25,75 40,65 50,50 Z" fill="#3b82f6" stroke="#1d4ed8" stroke-width="1.5"/>
+            <path d="M50,50 C75,15 95,25 85,50 C75,75 60,65 50,50 Z" fill="#60a5fa" stroke="#1d4ed8" stroke-width="1.5"/>
+            <path d="M50,50 L50,72" stroke="#1e3a8a" stroke-width="2"/>
+            <circle cx="50" cy="50" r="3" fill="#0f172a"/>
+        </svg>
+    </div>
+    <div class="butterfly butterfly-3">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50,50 C35,25 15,35 25,55 C35,75 45,65 50,50 Z" fill="#a855f7" stroke="#7e22ce" stroke-width="1.5"/>
+            <path d="M50,50 C65,25 85,35 75,55 C65,75 55,65 50,50 Z" fill="#c084fc" stroke="#7e22ce" stroke-width="1.5"/>
+            <path d="M50,50 L50,68" stroke="#6b21a8" stroke-width="2"/>
+            <circle cx="50" cy="50" r="3" fill="#1e293b"/>
+        </svg>
+    </div>
+</div>
+
+<div class="bg-particles" id="particles"></div>
+
+<nav class="navbar">
+    <div class="container nav-container">
+        <a href="#home">首页</a>
+        <a href="#skills">技能矩阵</a>
+        <a href="#projects">项目经历</a>
+        <a href="#social">社会实践</a>
+        <a href="#awards">荣誉奖项</a>
+    </div>
+</nav>
+
+<main>
+    <section id="home">
+        <div class="container">
+            <div class="profile-card">
+                <div class="profile-left">
+                    <h1 class="profile-name">蔡文雅</h1>
+                    <div class="profile-tag">
+                        <i class="fas fa-bullseye"></i> 意向岗位：视觉算法工程师（实习）
+                    </div>
+                    <div class="education-badge">
+                        <i class="fas fa-graduation-cap"></i> 湖南工商大学 · 人工智能本科 | 2023.9-2027.6 | 校级三等奖学金
+                    </div>
+                    <div class="personal-motto">
+                        <i class="fas fa-quote-left" style="margin-right: 8px; color:#3b82f6;"></i> 
+                        计算机视觉与深度学习基础扎实，3个完整项目落地经验（含边缘端部署），具备算法研发、轻量化部署、机械臂联动调试的全链路实践能力。拥有专利/软著撰写经验，适应“技术研发+知识产权”复合型需求，沟通高效，抗压能力强。
+                    </div>
+                    <div class="profile-desc" style="color:#334155; margin-top: 8px;">
+                        国家级大创负责人，5人团队管理经验，累计获得国家级奖项7项、省级11项。熟悉PyTorch/TensorRT/ROS2，追求算法落地与产业价值。
+                    </div>
+                    <div class="contact-info">
+                        <a href="tel:17346796667" class="contact-item"><i class="fas fa-phone-alt"></i> 173 4679 6667</a>
+                        <a href="mailto:3468567943@qq.com" class="contact-item"><i class="fas fa-envelope"></i> 3468567943@qq.com</a>
+                        <span class="contact-item"><i class="fas fa-map-marker-alt"></i> 湖南工商大学 · 江西萍乡</span>
+                    </div>
+                </div>
+                <div class="profile-right">
+                    <div class="avatar-container">
+                        <img src="my_avatar.jpg" alt="蔡文雅头像" class="avatar-img">
+                        <div class="scan-line"></div>
+                    </div>
+                    <div class="avatar-tip">
+                        <i class="fas fa-sync-alt"></i> 全栈视觉 · 动态核心
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="skills">
+        <div class="container">
+            <h2 class="section-title"><i class="fas fa-chart-line"></i> 技能矩阵 · 核心技术栈</h2>
+            <div class="skills-grid" id="skillsGrid"></div>
+            <div style="margin-top: 1rem; font-size:0.8rem; color:#475569; text-align:center;">
+                <i class="fas fa-microchip"></i> Python/C++ · PyTorch/TensorFlow · OpenCV · ONNX/TensorRT · ROS2 · 机械臂控制
+            </div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <div class="container">
+            <h2 class="section-title"><i class="fas fa-code-branch"></i> 核心项目落地</h2>
+            <div class="projects-grid" id="projectsGrid"></div>
+            <div style="margin-top: 16px; text-align: center; font-size:0.85rem; background:rgba(37,99,235,0.1); padding:6px 12px; border-radius:40px; width:fit-content; margin-left:auto; margin-right:auto;">
+                <i class="fas fa-trophy"></i> 项目均获国家级/省级竞赛奖项，产学研深度融合
+            </div>
+        </div>
+    </section>
+
+    <section id="social">
+        <div class="container">
+            <h2 class="section-title"><i class="fas fa-hands-helping"></i> 社会实践 · 公益足迹</h2>
+            <div class="social-grid" id="socialGrid"></div>
+            <div style="margin-top: 1rem; text-align: center; font-size:0.8rem; color:#475569;">
+                <i class="fas fa-camera"></i> 真实记录乡村振兴与志愿服务
+            </div>
+        </div>
+    </section>
+
+    <section id="awards">
+        <div class="container">
+            <h2 class="section-title"><i class="fas fa-medal"></i> 荣誉奖项 · 全级别创新展示（含证书）</h2>
+            <div class="awards-wrapper" id="awardsWrapper"></div>
+            <div class="group-note" style="text-align: center; margin-top: 1rem; color:#475569;">
+                🌟 累计国家级奖项8项、省级11项、校级荣誉20余项。点击「证书」按钮可查看对应荣誉证书。
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>© 2025 蔡文雅 · 视觉算法工程师（实习）| 浅色科技动态档案 · 蝴蝶翩跹</p>
+    <p>扫描二维码即可访问本页 | 全链路AI + 机器人竞赛荣誉体系</p>
+</footer>
+
+<div class="back-to-top" id="backToTop">
+    <i class="fas fa-arrow-up"></i>
+</div>
+
+<div id="certModal" class="modal">
+    <span class="close-modal">&times;</span>
+    <img class="modal-content" id="modalImg">
+</div>
+
+<script>
+    // 动态粒子生成
+    function createParticles() {
+        const container = document.getElementById('particles');
+        for (let i = 0; i < 40; i++) {
+            const span = document.createElement('span');
+            const size = Math.random() * 4 + 2;
+            span.style.width = size + 'px';
+            span.style.height = size + 'px';
+            span.style.left = Math.random() * 100 + '%';
+            span.style.top = Math.random() * 100 + '%';
+            span.style.animationDelay = Math.random() * 10 + 's';
+            span.style.animationDuration = 8 + Math.random() * 10 + 's';
+            container.appendChild(span);
+        }
+    }
+    createParticles();
+
+    // 技能数据
+    const skillsData = [
+        { name: "Python / PyTorch", percent: 92 },
+        { name: "计算机视觉 (检测/跟踪/分割)", percent: 90 },
+        { name: "模型轻量化 (ONNX/TensorRT)", percent: 85 },
+        { name: "边缘端部署 (Jetson/ROS)", percent: 82 },
+        { name: "C++ / OpenCV", percent: 80 },
+        { name: "机械臂控制与联动调试", percent: 78 },
+        { name: "深度强化学习", percent: 75 },
+        { name: "专利/软著撰写", percent: 85 }
+    ];
+
+    function renderSkills() {
+        const container = document.getElementById('skillsGrid');
+        container.innerHTML = skillsData.map(skill => `
+            <div class="skill-card">
+                <div class="skill-header"><span>${skill.name}</span><span>${skill.percent}%</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width: ${skill.percent}%;"></div></div>
+            </div>
+        `).join('');
+    }
+
+    // 项目经历
+    const projectsData = [
+        {
+            title: "宇树G1足球对抗系统 · 边缘端视觉决策",
+            date: "2024.12 – 至今",
+            desc: "基于YOLOv8 + 轻量化策略，在Jetson Orin上实现实时多目标检测与足球轨迹预测，完成与G1机器人通信集成，获得第八届中国高校智能机器人创意大赛专项赛全国三等奖。",
+            tech: ["Python", "TensorRT", "ROS2", "运动控制"]
+        },
+        {
+            title: "智能零售无人售货机视觉识别系统",
+            date: "2026.1 – 至今",
+            desc: "基于PyTorch+YOLOv8实现20+类商品检测，通过量化剪枝适配边缘设备，优化机械臂抓取逻辑，识别准确率97.2%，边缘端单帧耗时大幅降低。",
+            tech: ["YOLOv8", "OpenCV", "量化剪枝", "边缘部署"]
+        },
+        {
+            title: "深度强化学习+数字孪生半导体制造优化",
+            date: "2025.1 – 至今",
+            desc: "国家级大创负责人，构建数字孪生仿真环境，设计多目标强化学习调度算法，跨产线迁移适配周期缩短40%；1项发明专利实审，2项软著受理。",
+            tech: ["深度强化学习", "数字孪生", "多目标优化", "分布式训练"]
+        }
+    ];
+
+    function renderProjects() {
+        const container = document.getElementById('projectsGrid');
+        container.innerHTML = projectsData.map(proj => `
+            <div class="project-card">
+                <div class="project-title">${proj.title}</div>
+                <div class="project-date"><i class="far fa-calendar-alt"></i> ${proj.date}</div>
+                <div class="project-desc">${proj.desc}</div>
+                <div class="tech-stack">${proj.tech.map(t => `<span class="tech-tag">${t}</span>`).join('')}</div>
+            </div>
+        `).join('');
+    }
+
+    // 社会实践数据
+    const socialData = [
+        {
+            title: "芙蓉学子·乡村振兴计划",
+            date: "2025年6月 · 省级资助立项",
+            desc: "作为团队核心成员参与第四届“芙蓉学子·乡村振兴”公益计划，项目获湖南省青少年发展基金会经费资助，赴湘西米多村开展非遗数字化振兴与科技助农实践，形成调研报告并获优秀报道奖。",
+            img: "furong.jpg",
+            fallbackIcon: "fas fa-leaf"
+        },
+        {
+            title: "三下乡·非遗数字化振兴",
+            date: "2025年暑期 · 社会实践优秀个人",
+            desc: "带领团队深入湘西米多村，运用数字技术记录非遗文化，产出《文以载道·数创非遗》项目，获得校级三等奖、优秀报道奖、优秀视频奖，个人被评为“社会实践优秀个人”。",
+            img: "sanxiaxiang.jpg",
+            fallbackIcon: "fas fa-mountain"
+        },
+        {
+            title: "公益实践与志愿服务",
+            date: "2024-2025 · 多元公益行动",
+            desc: "参与校园运动会志愿服务、社区科普宣讲、疫情期间物资分发等志愿活动；同时担任学生干部组织公益募捐，累计志愿服务时长200+小时。",
+            img: "gongyi.jpg",
+            fallbackIcon: "fas fa-heart"
+        }
+    ];
+
+    function renderSocial() {
+        const container = document.getElementById('socialGrid');
+        container.innerHTML = socialData.map(item => `
+            <div class="social-card">
+                <div class="social-img">
+                    <img src="${item.img}" alt="${item.title}" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'${item.fallbackIcon}\' style=\'font-size:3rem; color:#3b82f6;\'></i>';">
+                </div>
+                <div class="social-content">
+                    <div class="social-title">${item.title}</div>
+                    <div class="social-date"><i class="far fa-calendar-alt"></i> ${item.date}</div>
+                    <div class="social-desc">${item.desc}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // 证书映射和奖项数据（保持不变）
+    const certImageMap = {
+        "第八届中国高校智能机器人创意大赛 足式机器人挑战赛·三等奖": "足式机器人挑战赛(专项赛).jpg",
+        "中国国际大学生创新大赛(2024) 铜奖": "互联网＋.jpg",
+        "湖南省大学生创新大赛(2024) 高教主赛道·一等奖": "互联网加.jpg",
+        "第22届全国大学生信息安全与对抗技术竞赛 全国总决赛·一等奖": "NO.ISCC-USC-ZNAQ-NF-2025-1-23B.png",
+        "第22届全国大学生信息安全与对抗 区域赛·一等奖 (城市道路自动驾驶)": "NO.ISCC-USC-ZNAQ-RC-12-2025-1-69A.png",
+        "第二十七届中国机器人及人工智能大赛 全国总决赛·二等奖": "证书.png",
+        "第二十七届中国机器人及人工智能大赛 湖南赛区·一等奖": "证书.png",
+        "第七届全球校园人工智能算法精英大赛 全国总决赛·优秀奖 (强化学习)": "证书_强化学习.png",
+        "第七届全球校园人工智能算法精英大赛 全国总决赛·优秀奖 (图书推荐)": "证书_图书馆.png",
+        "全球校园人工智能算法精英大赛 省级选拔赛·二等奖 (强化学习)": "证书_强化学习.png",
+        "全球校园人工智能算法精英大赛 省级选拔赛·二等奖 (图书预测)": "证书_图书馆.png",
+        "全国高校商业精英挑战赛 跨境电商赛道·全国总决赛二等奖": "证书扫描版.jpg",
+        "第十一届“挑战杯”湖南省大学生创业计划竞赛 银奖": "挑战杯省级银奖.jpg",
+        "全国大学生数学建模竞赛 湖南赛区·三等奖": "证书.jpg",
+        "湖南工商大学2025年大学生创新大赛·一等奖 (智领无瑕)": "2025年大学生创新大赛一等奖.jpg",
+        "湖南工商大学2024年“AI+X”创意创新创业大赛·一等奖": "证书扫描版.jpg",
+        "校级三好学生 (2023-2024)": "三好学生扫描版.jpg",
+        "校级优秀学生干部 (2023-2024)": "优秀学生干部扫描版.jpg",
+        "优秀团干 (2024-2025)": "优秀团干.jpg",
+        "优秀团员 (2023-2024)": "优秀团员扫描版.jpg",
+        "2025暑期三下乡 社会实践优秀个人 & 优秀报道奖 & 优秀视频奖": "蔡文雅优秀实践个人.jpg",
+        "第四届“芙蓉学子·乡村振兴”公益计划 省级资助立项": "资助证书.jpg",
+        "“金种子杯”大学生创业大赛 未来产业·优胜奖": "证书扫描版.jpg",
+        "鸿班健康文体之星·优秀学生干部": "鸿班优秀学生干部健康文体之星.jpg",
+        "湖南工商大学第二十届数学建模竞赛·三等奖": "2024数学建模校三.jpg",
+        "2024年春季运动会 摸石头过河·第二名": "摸石头过河扫描版.jpg"
+    };
+
+    const awardsGroup = {
+        national: [
+            { name: "中国国际大学生创新大赛(2024) 铜奖", year: "2024", org: "教育部等" },
+            { name: "第22届全国大学生信息安全与对抗技术竞赛 全国总决赛·一等奖", year: "2025", org: "中国兵工学会" },
+            { name: "第二十七届中国机器人及人工智能大赛 全国总决赛·二等奖", year: "2025", org: "CRAIC组委会" },
+            { name: "第八届中国高校智能机器人创意大赛 足式机器人挑战赛·三等奖", year: "2025", org: "国赛专项" },
+            { name: "全国高校商业精英挑战赛 跨境电商赛道·全国总决赛二等奖", year: "2024", org: "国际贸易促进委员会" },
+            { name: "第七届全球校园人工智能算法精英大赛 全国总决赛·优秀奖 (强化学习)", year: "2025", org: "算法大赛组委会" },
+            { name: "第七届全球校园人工智能算法精英大赛 全国总决赛·优秀奖 (图书推荐)", year: "2025", org: "算法大赛组委会" }
+        ],
+        provincial: [
+            { name: "湖南省大学生创新大赛(2024) 高教主赛道·一等奖", year: "2024", org: "湖南省教育厅" },
+            { name: "第十一届“挑战杯”湖南省大学生创业计划竞赛 银奖", year: "2024", org: "团省委" },
+            { name: "第二十七届中国机器人及人工智能大赛 湖南赛区·一等奖", year: "2025", org: "省赛区" },
+            { name: "全球校园人工智能算法精英大赛 省级选拔赛·二等奖 (强化学习)", year: "2025", org: "省级赛" },
+            { name: "全球校园人工智能算法精英大赛 省级选拔赛·二等奖 (图书预测)", year: "2025", org: "省级赛" },
+            { name: "第22届全国大学生信息安全与对抗 区域赛·一等奖 (城市道路自动驾驶)", year: "2025", org: "区域赛" },
+            { name: "全国大学生数学建模竞赛 湖南赛区·三等奖", year: "2024", org: "湖南省教育厅" },
+            { name: "第四届“芙蓉学子·乡村振兴”公益计划 省级资助立项", year: "2025", org: "湖南省青基会" },
+            { name: "“金种子杯”大学生创业大赛 未来产业·优胜奖", year: "2025", org: "湖南省人民政府" }
+        ],
+        school: [
+            { name: "校级三好学生 (2023-2024)", year: "2024", org: "湖南工商大学" },
+            { name: "校级优秀学生干部 (2023-2024)", year: "2024", org: "校团委" },
+            { name: "优秀团干 (2024-2025)", year: "2025", org: "校团委" },
+            { name: "优秀团员 (2023-2024)", year: "2024", org: "校团委" },
+            { name: "湖南工商大学2025年大学生创新大赛·一等奖 (智领无瑕)", year: "2025", org: "校级" },
+            { name: "湖南工商大学2024年“AI+X”创意创新创业大赛·一等奖", year: "2024", org: "前沿交叉学院" },
+            { name: "湖南工商大学第二十届数学建模竞赛·三等奖", year: "2024", org: "教务处" },
+            { name: "2024年春季运动会 摸石头过河·第二名", year: "2024", org: "体育运动委员会" },
+            { name: "2025暑期三下乡 社会实践优秀个人 & 优秀报道奖 & 优秀视频奖", year: "2025", org: "校团委" },
+            { name: "鸿班健康文体之星·优秀学生干部", year: "2024", org: "湘江书院" }
+        ]
+    };
+
+    const modal = document.getElementById('certModal');
+    const modalImg = document.getElementById('modalImg');
+    const closeModal = document.querySelector('.close-modal');
+    function showCertImage(imgPath) {
+        if (!imgPath) return;
+        modalImg.src = imgPath;
+        modal.style.display = 'flex';
+    }
+    closeModal.onclick = () => modal.style.display = 'none';
+    window.onclick = (event) => { if (event.target === modal) modal.style.display = 'none'; };
+
+    function renderAwardsWithCert() {
+        const wrapper = document.getElementById('awardsWrapper');
+        const groups = [
+            { key: 'national', label: '🇨🇳 国家级奖项', icon: 'fas fa-crown', color: '#fbbf24' },
+            { key: 'provincial', label: '🏆 省级奖项', icon: 'fas fa-medal', color: '#94a3f8' },
+            { key: 'school', label: '📚 校院级及个人荣誉', icon: 'fas fa-graduation-cap', color: '#38bdf8' }
+        ];
+        wrapper.innerHTML = groups.map(group => {
+            const items = awardsGroup[group.key];
+            return `
+                <div class="award-group">
+                    <div class="group-badge">
+                        <i class="${group.icon}" style="color:${group.color}"></i>
+                        <span>${group.label}</span>
+                        <span style="font-size:0.8rem; background:rgba(37,99,235,0.15); padding:2px 10px; border-radius:30px;">${items.length}项</span>
+                    </div>
+                    <div class="award-list">
+                        ${items.map(item => {
+                            const certPath = certImageMap[item.name];
+                            const certBtn = certPath ? `<button class="cert-btn" data-cert="${certPath}"><i class="fas fa-image"></i> 证书</button>` : '';
+                            return `
+                                <div class="award-chip">
+                                    <i class="fas fa-award"></i>
+                                    <strong>${item.name}</strong>
+                                    <span class="award-year">${item.year}</span>
+                                    <span style="font-size:0.7rem; color:#475569;">${item.org}</span>
+                                    ${certBtn}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        document.querySelectorAll('.cert-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const certPath = btn.getAttribute('data-cert');
+                if (certPath) showCertImage(certPath);
+            });
+        });
+    }
+
+    const backBtn = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) backBtn.classList.add('show');
+        else backBtn.classList.remove('show');
+    });
+    backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    document.querySelectorAll('.nav-container a').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const id = this.getAttribute('href').substring(1);
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+
+    renderSkills();
+    renderProjects();
+    renderSocial();
+    renderAwardsWithCert();
+</script>
+</body>
+</html>
